@@ -1,21 +1,37 @@
 const pool = require("../config/database");
 
-const findAll = async () => {
+const findAll = async (limit, offset) => {
+
     const result = await pool.query(
-        "SELECT * FROM movies ORDER BY id"
+        `
+        SELECT
+            id,
+            imdb_id,
+            title,
+            year,
+            imdb_rating,
+            poster
+        FROM movies
+        ORDER BY title
+        LIMIT $1
+        OFFSET $2
+        `,
+        [limit, offset]
     );
 
     return result.rows;
+
 };
 
-const findByImdbId = async (imdbId) => {
+const findById = async (id) => {
 
     const result = await pool.query(
-        "SELECT * FROM movies WHERE imdb_id = $1",
-        [imdbId]
+        "SELECT * FROM movies WHERE id = $1",
+        [id]
     );
 
     return result.rows[0];
+
 };
 
 const create = async (movie) => {
@@ -70,8 +86,83 @@ const create = async (movie) => {
 
 };
 
+const count = async () => {
+
+    const result = await pool.query(
+        "SELECT COUNT(*) FROM movies"
+    );
+
+    return Number(result.rows[0].count);
+
+};
+
+const search = async (title) => {
+
+    const result = await pool.query(
+        `
+        SELECT
+            id,
+            title,
+            year,
+            imdb_rating,
+            poster
+        FROM movies
+        WHERE LOWER(title) LIKE LOWER($1)
+        ORDER BY title
+        `,
+        [`%${title}%`]
+    );
+
+    return result.rows;
+
+};
+
+const remove = async (id) => {
+
+    const result = await pool.query(
+        `
+        DELETE FROM movies
+        WHERE id = $1
+        RETURNING *
+        `,
+        [id]
+    );
+
+    return result.rows[0];
+
+};
+
+const update = async (id, movie) => {
+
+    const result = await pool.query(
+        `
+        UPDATE movies
+        SET
+            title = $1,
+            plot = $2,
+            director = $3,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $4
+        RETURNING *
+        `,
+        [
+            movie.title,
+            movie.plot,
+            movie.director,
+            id
+        ]
+    );
+
+    return result.rows[0];
+
+};
+
 module.exports = {
     findAll,
-    findByImdbId,
-    create
+    findById,
+    create,
+    count,
+    search,
+    remove,
+    update
 };
