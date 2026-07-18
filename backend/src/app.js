@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 
+const moviesRoutes = require("./routes/movies.routes");
+
 const app = express();
 
 // Middlewares
@@ -14,5 +16,7 @@ app.get("/health", (req, res) => {
     message: "Movie Wiki API is running"
   });
 });
+
+app.use("/movies", moviesRoutes);
 
 module.exports = app;

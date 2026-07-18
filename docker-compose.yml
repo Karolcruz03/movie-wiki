@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:16
+
+    container_name: movie-wiki-db
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: moviewiki
+      POSTGRES_PASSWORD: moviewiki123
+      POSTGRES_DB: moviewiki
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
