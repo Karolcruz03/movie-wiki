@@ -7,4 +7,6 @@ router.get("/", moviesController.getAllMovies);
 
 router.get("/:id", moviesController.getMovieById);
 
+router.post("/import/:imdbId", moviesController.importMovie);
+
 module.exports = router;

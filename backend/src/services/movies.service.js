@@ -1,30 +1,31 @@
-const movies = [
-    {
-        id: 1,
-        title: "The Matrix",
-        year: 1999
-    },
-    {
-        id: 2,
-        title: "Inception",
-        year: 2010
-    },
-    {
-        id: 3,
-        title: "Interstellar",
-        year: 2014
-    }
-];
+const movieRepository = require("../repositories/movie.repository");
+const omdbService = require("../external/omdb.service");
 
-const getAllMovies = () => {
-    return movies;
+const importMovie = async (imdbId) => {
+
+    const existingMovie = await movieRepository.findByImdbId(imdbId);
+
+    if (existingMovie) {
+        return existingMovie;
+    }
+
+    const movie = await omdbService.getMovieByImdbId(imdbId);
+
+    return await movieRepository.create(movie);
+
 };
 
-const getMovieById = (id) => {
-    return movies.find(movie => movie.id === id);
+const getAllMovies = async () => {
+    return await movieRepository.findAll();
+};
+
+const getMovieById = async (id) => {
+    const result = await movieRepository.findById(id);
+    return result;
 };
 
 module.exports = {
+    importMovie,
     getAllMovies,
     getMovieById
 };
